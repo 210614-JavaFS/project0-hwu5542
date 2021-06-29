@@ -13,6 +13,10 @@ public class Accounts{
 		String password;
 	}
 	
+	protected void registerCredential(String username, String password) {
+		return;
+	}
+	
 	protected void retriveCredential() { //get login info from database
 		return;
 	}

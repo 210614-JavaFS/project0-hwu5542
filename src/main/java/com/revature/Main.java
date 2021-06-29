@@ -6,9 +6,6 @@ class Main {
 	public static void main(String[] args) {
 		Scanner userInput = new Scanner(System.in);
 		int userSelection = 0;
-		Customers customer = new Customers();
-		Admins admin = new Admins();
-		Employees employee = new Employees();
 
 		System.out.println("Which User Interface Are You Entering: \n" 
 							+ "1. Customer Interface \n"
@@ -18,14 +15,34 @@ class Main {
 		
 		if (userInput.hasNext())
 			userSelection = userInput.nextInt();
+		userInput.nextLine();
+
 		switch (userSelection) {
 			case 1:
-				customer.userLogin(userInput);
+				Customers customer = new Customers();
+
+				System.out.println("Do You Want to Register a New Account:\n"
+								   + "1. Yes \n"
+								   + "2. No, take me to login");
+				if (userInput.hasNext())
+					userSelection = userInput.nextInt();
+				userInput.nextLine();
+
+				if (userSelection == 1) {
+					customer.register(userInput);					
+				}
+				else if (userSelection == 2) {
+					customer.userLogin(userInput); 
+				}
 				break;
 			case 2:
+				Employees employee = new Employees();
+
 				employee.userLogin(userInput);
 				break;
 			case 3:
+				Admins admin = new Admins();
+
 				admin.userLogin(userInput);
 				break;
 			default:
