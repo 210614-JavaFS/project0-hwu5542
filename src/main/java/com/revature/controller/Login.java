@@ -22,6 +22,7 @@ public class Login extends Accounts {
 		int userSelection = 1;
 		double accountBalance = 0;
 		ArrayList<String> accountsInfo = new ArrayList<String>();
+		boolean[] approveRegisterFlag = null;
 		Scanner userInput = null;
 		
 		if (file == null) userInput = new Scanner(System.in);
@@ -89,10 +90,24 @@ public class Login extends Accounts {
 						case 2:
 							break;
 						case 3:
-							accountsInfo = Accounts.getNewApplication();
+							accountsInfo = Accounts.getNewApplication();							
+							approveRegisterFlag = new boolean [accountsInfo.size()+1];
+							
+							System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
+						     				 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
+						     				 + String.format("%5s|", "ID #") + String.format("%10s|", "Main User") + String.format("%10s", "Join User"));
+							int i = 0;
+
 							for (String singleAccountInfo: accountsInfo) {
-								Employees.approveBankAccount();
-							}								
+								i++;
+								if (Employees.viewApplications(singleAccountInfo, userInput))
+									approveRegisterFlag[i] = true;
+							}
+							
+							for (i=1; i<accountsInfo.size()+1; i++) {
+								
+								
+							}
 							break;
 					}
 					break;

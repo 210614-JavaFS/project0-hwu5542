@@ -23,6 +23,10 @@ public class Accounts extends AccountsDAO {
 			System.out.println("Please Enter your Username:");
 			if (userInput.hasNext()) username = new String(userInput.nextLine());
 
+			if (username.length() > 10) {
+				System.out.println("Username is too long.  Only allow less than 10 characters.");
+				continue;
+			}
 			
 			selectResult = AccountsDAO.selectDB("SELECT * FROM login_accounts WHERE usernames = '" + username + "'");
 			if (selectResult.next())
@@ -102,25 +106,41 @@ public class Accounts extends AccountsDAO {
 	
 	
 	protected static void applyBankAccount(int accountID) throws SQLException {
-		ResultSet insertResult = null;
+		ResultSet resultSet = null;
 		String command = "";
 
-		if (accountID > 0) { //join account
-			command = "UPDATE login_accounts SET account_id = '" + accountID + "' WHERE usernames = '" + loginInfo.username + "'";
-			AccountsDAO.updateDB(command);
-				
-		} else if (accountID == 0) { //new account
-			command = "INSERT INTO bank_accounts (account_fund) VALUES (0)";
-			insertResult = AccountsDAO.insertBankDB(command);
-
-			if (insertResult.next()) {
-				 command = "UPDATE login_accounts SET account_id = '" + insertResult.getInt(1) + "' WHERE usernames = '" + loginInfo.username + "'";
-				 AccountsDAO.updateDB(command);
-			} else {
-				System.out.println("  Fail to Create New account ! +\n"
-								   + "Please Try Again Later.");				
+		if (accountID >= 0) { //add new application 
+			command = "INSERT INTO applications (usernames) VALUES ('" + loginInfo.username + "')";
+			if (AccountsDAO.updateDB(command) == 0) {
+				System.out.println("  Create New Application Fail!\n  Please Try Again Later.");
+				return;
 			}
-		} else {
+			
+			if (accountID > 0) { //add join account
+				command = "SELECT account_id FROM login_account WHERE usernames = '" + loginInfo.username + "'";
+				resultSet = AccountsDAO.selectDB(command);
+			
+				command = "UPDATE login_accounts SET account_id = '" + accountID + "' WHERE usernames = '" + loginInfo.username + "'";
+				AccountsDAO.updateDB(command);
+
+				command = "DELETE FROM bank_accounts WHERE account_id = '" + resultSet.getInt(1) + "'";
+				AccountsDAO.updateDB(command);
+
+			} else {
+				command = "INSERT INTO bank_accounts (account_fund) VALUES (0)";
+
+				resultSet = AccountsDAO.insertBankDB(command);
+
+				if (resultSet.next()) {
+					 command = "UPDATE login_accounts SET account_id = '" + resultSet.getInt(1) + "' WHERE usernames = '" + loginInfo.username + "'";
+					 AccountsDAO.updateDB(command);
+				} else {
+					System.out.println("  Fail to Create New account ! +\n"
+									   + "Please Try Again Later.");				
+				}
+			}
+			
+		} else { //invalid account
 			System.out.println("  Invalid Account ID !");
 			return;
 		}
@@ -132,16 +152,14 @@ public class Accounts extends AccountsDAO {
 
 	protected static ArrayList<String> getNewApplication() throws SQLException {
 		ArrayList<String> applications = new ArrayList<String>();		
-		ResultSet selectResult = AccountsDAO.selectDB("SELECT usernames, first_name, last_name, address, phone, email, login_accounts.account_id, account_user_one, account_user_two FROM login_accounts, bank_accounts" 
-										+ " WHERE login_accounts.account_id = bank_accounts.account_id AND bank_accounts.account_user_one != login_accounts.usernames AND bank_accounts.account_user_two != login_accounts.usernames");
+		ResultSet selectResult = AccountsDAO.selectDB("SELECT login_accounts.usernames, first_name, last_name, address, phone, email, account_user_one, account_user_two, login_accounts.account_id FROM login_accounts, applications, bank_accounts \n"
+													+ "  WHERE applications.usernames = login_accounts.usernames AND login_accounts.account_id = bank_accounts.account_id;");
 		while (selectResult.next()) {
-			applications.add(String.format("%20s", selectResult.getString(1)) + String.format("%20s", selectResult.getString(2)) 				
-						   + String.format("%20s", selectResult.getString(3)) + String.format("%50s", selectResult.getString(4))
-						   + String.format("%20s", selectResult.getString(5)) + String.format("%50s", selectResult.getString(6))
-						   + String.format("%20s", selectResult.getString(7)) + String.format("%20s", selectResult.getString(8))
-						   + String.format("%i", selectResult.getInt(9)) );
+			applications.add(String.format("%10s|", selectResult.getString(1)) + String.format("%10s|", selectResult.getString(2)) 				
+						   + String.format("%10s|", selectResult.getString(3)) + String.format("%50s|", selectResult.getString(4))
+						   + String.format("%12s|", selectResult.getString(5)) + String.format("%20s|", selectResult.getString(6))
+						   + String.format("%5d|", selectResult.getInt(9)) + String.format("%10s|", selectResult.getString(7)) + String.format("%10s", selectResult.getString(8)));
 		}
-		System.out.println(applications.get(0));
 		return applications;
 	}
 	

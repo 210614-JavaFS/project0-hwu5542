@@ -4,7 +4,7 @@ import java.sql.*;
 
 import com.revature.controller.Accounts;
 
-public class Admins extends Accounts {
+public class Admins {
 	public static void adminInterface() {
 		
 	}

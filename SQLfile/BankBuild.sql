@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS login_accounts CASCADE;
 DROP TABLE IF EXISTS bank_accounts CASCADE;
+DROP TABLE IF EXISTS applications CASCADE;
 
 CREATE TABLE login_accounts(usernames varchar(20) not null UNIQUE, passwords varchar(20),
   account_id int, account_type int,
@@ -9,7 +10,10 @@ CREATE TABLE login_accounts(usernames varchar(20) not null UNIQUE, passwords var
 CREATE TABLE bank_accounts(account_id SERIAL not null, account_fund int,
   account_user_one varchar(20), account_user_two varchar(20),
   PRIMARY KEY (account_id));
-
+ 
+CREATE TABLE applications (application_id SERIAL not null, usernames varchar(20) not null,
+  PRIMARY KEY (application_id)); 
+ 
 ALTER TABLE login_accounts
   ADD CONSTRAINT fk_login_bank
   FOREIGN KEY (account_id) REFERENCES bank_accounts(account_id) ON DELETE CASCADE;
@@ -21,6 +25,10 @@ ALTER TABLE bank_accounts
 ALTER TABLE bank_accounts
   ADD CONSTRAINT fk_bank_login_two
   FOREIGN KEY (account_user_two) REFERENCES login_accounts(usernames) ON DELETE CASCADE;
+ 
+ALTER TABLE applications
+  ADD CONSTRAINT fk_app_login
+  FOREIGN KEY (usernames) REFERENCES login_accounts(usernames) ON DELETE CASCADE;
 
 INSERT INTO login_accounts(usernames, passwords, account_type) VALUES
   ('admin', 'admin', 3), ('employee', 'employee', 2);
