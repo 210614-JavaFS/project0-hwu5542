@@ -2,12 +2,15 @@ package com.revature;
 
 import java.sql.SQLException;
 
-import com.revature.model.Login;
-
+import com.revature.controller.Login;
 class Driver {
 	public static void main(String[] args) {
 		try {
-			Login.userLogin();
+/*			for (int i=1; i<10; i++) {
+				Login.userLogin("src//test//resources//text_" + i + ".txt");
+			} */
+			Login.userLogin(null);
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println("Database Access Failure.");

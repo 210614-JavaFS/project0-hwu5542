@@ -1,19 +1,36 @@
-package com.revature.model;
+package com.revature.controller;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.sql.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import com.revature.service.Admins;
+import com.revature.service.Customers;
+import com.revature.service.Employees;
+
 
 public class Login extends Accounts {
 
-	public static void userLogin() throws SQLException {
+	public static void userLogin(String file) throws SQLException {
 		String username = "";
 		String password = "";
 		String userResponse = "";
 		int accountType = 0;
 		int userSelection = 1;
-		String[] userInfo = new String[5];
+		double accountBalance = 0;
+		ArrayList<String> accountsInfo = new ArrayList<String>();
+		Scanner userInput = null;
 		
-		Scanner userInput = new Scanner(System.in);
+		if (file == null) userInput = new Scanner(System.in);
+		else
+			try {
+				userInput = new Scanner(new File(file));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
 		
 		System.out.println("Are you a new customer? (yes / no)");
 		if (userInput.hasNext()) userResponse = new String(userInput.nextLine().toLowerCase());		
@@ -37,23 +54,25 @@ public class Login extends Accounts {
 					//TODO: go to customer interface
 					while (userSelection > 0) {
 						userSelection = Customers.customerInterface(userInput);
-						userInput.nextLine();
 						
 						switch (userSelection) {
 							case 1:
-								userInfo = Customers.collectUserInfo(userInput);
-								Accounts.setAccountInfo(userInfo);
+								changeInfo(userInput);
+								Accounts.applyBankAccount(Customers.applyBankAccount(userInput));
 								break;
 							case 2:
+								accountBalance = Accounts.getFunds();
+								if (accountBalance >= 0)
+									System.out.println("Account Balance : "+ "\u0024" + String.format("%.2f", accountBalance));
 								break;
-							case 3:
+							case 3:								
 								break;
 							case 4:
 								break;
 							case 5:
 								break;
 							case 6:
-								userInfo = Customers.collectUserInfo(userInput);
+								changeInfo(userInput);
 								break;
 						}
 					}
@@ -61,13 +80,26 @@ public class Login extends Accounts {
 				case 2:
 					System.out.println("Welecome back, Bank Employee");
 					//TODO: go to Employee
-					Employees.EmployeeInterface();
+					userSelection = Employees.employeeInterface(userInput);
 					
+					switch (userSelection) {
+						case 1:
+							
+							break;
+						case 2:
+							break;
+						case 3:
+							accountsInfo = Accounts.getNewApplication();
+							for (String singleAccountInfo: accountsInfo) {
+								Employees.approveBankAccount();
+							}								
+							break;
+					}
 					break;
 				case 3:
 					System.out.println("Welecome back, Bank Administrator");
 					//TODO: go to admin
-					Admins.AdminInterface();
+					Admins.adminInterface();
 					break;
 			}
 		}
@@ -77,4 +109,15 @@ public class Login extends Accounts {
 		userInput.close();
 	}
 
+	
+	
+	public static void changeInfo(Scanner userInput) throws SQLException {
+		String[] userInfo = new String[5];
+
+		Accounts.getAccountInfo();
+		if (Customers.changeInfo(userInput)) {
+			userInfo = Customers.collectUserInfo(userInput);
+			Accounts.setAccountInfo(userInfo);
+		}
+	}
 }

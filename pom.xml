@@ -43,12 +43,13 @@
 			<version>1.7.31</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.lucee/postgresql -->
+		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
-			<groupId>org.lucee</groupId>
+			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>8.3-606.jdbc4</version>
+			<version>42.2.23</version>
 		</dependency>
-		
+
+
 	</dependencies>
 </project>

@@ -21,6 +21,13 @@ ALTER TABLE bank_accounts
 ALTER TABLE bank_accounts
   ADD CONSTRAINT fk_bank_login_two
   FOREIGN KEY (account_user_two) REFERENCES login_accounts(usernames) ON DELETE CASCADE;
- 
+
 INSERT INTO login_accounts(usernames, passwords, account_type) VALUES
   ('admin', 'admin', 3), ('employee', 'employee', 2);
+
+INSERT INTO bank_accounts (account_fund, account_user_one) VALUES
+  (0, 'admin'), (0, 'employee');
+  
+UPDATE login_accounts SET account_id = 1 WHERE usernames = 'admin';
+
+UPDATE login_accounts SET account_id = 2 WHERE usernames = 'employee';
