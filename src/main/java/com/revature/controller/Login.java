@@ -91,7 +91,7 @@ public class Login extends Accounts {
 							break;
 						case 3:
 							accountsInfo = Accounts.getNewApplication();							
-							approveRegisterFlag = new boolean [accountsInfo.size()+1];
+							approveRegisterFlag = new boolean [accountsInfo.size()];
 							
 							System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
 						     				 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
@@ -99,15 +99,12 @@ public class Login extends Accounts {
 							int i = 0;
 
 							for (String singleAccountInfo: accountsInfo) {
-								i++;
 								if (Employees.viewApplications(singleAccountInfo, userInput))
 									approveRegisterFlag[i] = true;
+								i++;
 							}
 							
-							for (i=1; i<accountsInfo.size()+1; i++) {
-								
-								
-							}
+							Accounts.approveBankAccount(approveRegisterFlag);
 							break;
 					}
 					break;
