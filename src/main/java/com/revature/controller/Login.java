@@ -52,66 +52,101 @@ public class Login extends Accounts {
 			switch (accountType) {
 				case 1:
 					System.out.println("Welecome back, Customer");
-					//TODO: go to customer interface
+					Customers.setScanner(userInput);
+					
 					while (userSelection > 0) {
-						userSelection = Customers.customerInterface(userInput);
+						userSelection = Customers.customerInterface();
+						Customers.setBalance(Accounts.getFunds());
 						
 						switch (userSelection) {
 							case 1:
 								changeInfo(userInput);
-								Accounts.applyBankAccount(Customers.applyBankAccount(userInput));
+								Accounts.applyBankAccount(Customers.applyBankAccount());
 								break;
 							case 2:
-								accountBalance = Accounts.getFunds();
-								if (accountBalance >= 0)
-									System.out.println("Account Balance : "+ "\u0024" + String.format("%.2f", accountBalance));
+								System.out.println("Account Balance : "+ "\u0024" + String.format("%.2f", accountBalance));
 								break;
-							case 3:								
+							case 3:
+								Accounts.operateFunds(Customers.depositFunds());
 								break;
 							case 4:
+								Accounts.operateFunds(Customers.withdrawFunds());
 								break;
 							case 5:
+								Accounts.operateFunds(Customers.transferFunds(), Customers.operateFunds(true));
 								break;
 							case 6:
 								changeInfo(userInput);
 								break;
 						}
+
+						if (userSelection > 2 && userSelection < 6)
+							System.out.println("Your New Balance : "+ "\u0024" + String.format("%.2f", Accounts.getFunds()));
 					}
 					break;
 				case 2:
 					System.out.println("Welecome back, Bank Employee");
-					//TODO: go to Employee
-					userSelection = Employees.employeeInterface(userInput);
 					
-					switch (userSelection) {
-						case 1:
+					while (userSelection > 0) {
+						userSelection = Employees.employeeInterface(userInput);
+						
+						switch (userSelection) {
+							case 1:
 							
-							break;
-						case 2:
-							break;
-						case 3:
-							accountsInfo = Accounts.getNewApplication();							
-							approveRegisterFlag = new boolean [accountsInfo.size()];
-							
-							System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
-						     				 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
-						     				 + String.format("%5s|", "ID #") + String.format("%10s|", "Main User") + String.format("%10s", "Join User"));
-							int i = 0;
+								break;
+							case 2:
+								break;
+							case 3:
+								accountsInfo = Accounts.getNewApplication();							
+								approveRegisterFlag = new boolean [accountsInfo.size()];
+								
+								System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
+												 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
+												 + String.format("%5s|", "ID #") + String.format("%10s|", "Main User") + String.format("%10s", "Join User"));
+								int i = 0;
 
-							for (String singleAccountInfo: accountsInfo) {
-								if (Employees.viewApplications(singleAccountInfo, userInput))
-									approveRegisterFlag[i] = true;
-								i++;
-							}
+								for (String singleAccountInfo: accountsInfo) {
+									if (Employees.processApplications(singleAccountInfo, userInput))
+										approveRegisterFlag[i] = true;
+									i++;
+								}
 							
 							Accounts.approveBankAccount(approveRegisterFlag);
 							break;
+						}
 					}
 					break;
 				case 3:
 					System.out.println("Welecome back, Bank Administrator");
-					//TODO: go to admin
-					Admins.adminInterface();
+
+					while (userSelection > 0) {
+						userSelection = Admins.adminInterface(userInput);
+					
+						switch (userSelection) {
+							case 1:
+							
+								break;
+							case 2:
+								break;
+							case 3:
+								accountsInfo = Accounts.getNewApplication();							
+								approveRegisterFlag = new boolean [accountsInfo.size()];
+							
+								System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
+												 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
+						     				     + String.format("%5s|", "ID #") + String.format("%10s|", "Main User") + String.format("%10s", "Join User"));
+
+								int i = 0;
+								for (String singleAccountInfo: accountsInfo) {
+									if (Admins.processApplications(singleAccountInfo, userInput))
+										approveRegisterFlag[i] = true;
+									i++;	
+								}
+							
+								Accounts.approveBankAccount(approveRegisterFlag);
+								break;
+						}
+					}
 					break;
 			}
 		}
@@ -127,8 +162,8 @@ public class Login extends Accounts {
 		String[] userInfo = new String[5];
 
 		Accounts.getAccountInfo();
-		if (Customers.changeInfo(userInput)) {
-			userInfo = Customers.collectUserInfo(userInput);
+		if (Customers.changeInfo()) {
+			userInfo = Customers.collectUserInfo();
 			Accounts.setAccountInfo(userInfo);
 		}
 	}

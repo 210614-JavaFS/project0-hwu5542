@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class AccountsDAO {
 	
-	protected static Connection establishConnection() throws SQLException {
+	private static Connection establishConnection() throws SQLException {
 		String url = "";
 		String user = "";
 		String password = "";

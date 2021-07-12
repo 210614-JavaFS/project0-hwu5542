@@ -29,7 +29,7 @@ public class Accounts extends AccountsDAO {
 				continue;
 			}
 			
-			selectResult = AccountsDAO.selectDB("SELECT * FROM login_accounts WHERE usernames = '" + username + "'");
+			selectResult = AccountsDAO.selectDB("SELECT login_accounts.usernames FROM login_accounts WHERE usernames = '" + username + "'");
 			if (selectResult.next())
 				System.out.println("Username is taken, please try again.");
 			else
@@ -48,7 +48,7 @@ public class Accounts extends AccountsDAO {
 			}
 		}
 
-		if (AccountsDAO.updateDB("INSERT INTO login_accounts (usernames, passwords, account_type) VALUES ('" + username + "', '" + password + "', 1 )")>0)
+		if (AccountsDAO.updateDB("INSERT INTO login_accounts (usernames, passwords, account_type, account_id) VALUES ('" + username + "', '" + password + "', 1, 1)")>0)
 			System.out.println("  Register Succesfull !");
 		else
 			System.out.println("  Register Fail, Please Try Again Later.");
@@ -74,10 +74,11 @@ public class Accounts extends AccountsDAO {
 	
 	
 	protected static void getAccountInfo() throws SQLException { //get customer info from database
-		String command = "SELECT first_name, last_name, address, phone, email, join_date FROM login_accounts WHERE usernames = '" + privateInfo.username + "'";
+		String command = "SELECT first_name, last_name, address, phone, email, join_date, account_id FROM login_accounts WHERE usernames = '" + privateInfo.username + "'";
 		ResultSet selectResult = AccountsDAO.selectDB(command);
 		if (selectResult.next()) {
 			System.out.println("     User Info "
+							 + "\n Account ID:      " + (selectResult.getInt(7) == 1? "Account Not Created or Application Denied": selectResult.getInt(7))
 							 + "\n First Name:      " + (selectResult.getString(1) == null? "N/A": selectResult.getString(1))
 							 + "\n Last Name:       " + (selectResult.getString(2) == null? "N/A": selectResult.getString(2))
 							 + "\n Home Address:    " + (selectResult.getString(3) == null? "N/A": selectResult.getString(3))
@@ -147,7 +148,7 @@ public class Accounts extends AccountsDAO {
 			return;
 		}
 		
-		System.out.println("  Application summited!\n  Your bank account access will be available after credential review process.");
+		System.out.println("  Application summited!\n  Your bank account access will be available after passing credential review process.");
 	}
 
 	
@@ -175,39 +176,68 @@ public class Accounts extends AccountsDAO {
 
 		for (int i = 0; i<approveRegisterFlag.length; i++) {
 			if (approveRegisterFlag[i]) {
-				command = "SELECT account_user_one FROM bank_accounts, login_accounts, applications WHERE application_id = " + privateInfo.applicationID.get(i) + " AND applications.usernames = login_accounts.usernames AND login_accounts.account_id = bank_accounts.account_id";  
+				command = "SELECT login_accounts.account_id, login_accounts.usernames, account_user_one FROM bank_accounts, login_accounts, applications WHERE application_id = " + privateInfo.applicationID.get(i) + " AND applications.usernames = login_accounts.usernames AND login_accounts.account_id = bank_accounts.account_id";  
 				resultSet = AccountsDAO.selectDB(command);
+
 				if (resultSet.next()) {
-					if (resultSet.getString(1) == null) {
+					if (resultSet.getString(3) == null) {
 						command = command.replaceFirst("SELECT account_user_one FROM bank_accounts,", "UPDATE bank_accounts SET account_user_one = login_accounts.usernames FROM");
 						if (AccountsDAO.updateDB(command)>0) {
 							countSuccess++;
 						}
-					} else {
+					} else if (!resultSet.getString(3).equals(resultSet.getString(2))){
 						command = command.replaceFirst("SELECT account_user_one FROM bank_accounts,", "UPDATE bank_accounts SET account_user_two = login_accounts.usernames FROM");
 						if (AccountsDAO.updateDB(command)>0) countSuccess++;
 					}
 				}
+			} else {
+				command = "UPDATE login_accounts SET account_id = 1 FROM bank_accout WHERE login_accounts.usernames =  AND bank_accounts.";  
+				AccountsDAO.updateDB(command);
 			}
 		}
 		command = "TRUNCATE TABLE applications";
 		AccountsDAO.updateDB(command);
-	
+		
+		command = "DELTE FROM bank_accounts WHERE account_user_one = null AND account_user_two = null";
+		AccountsDAO.updateDB(command);
+		
 		System.out.println("  Successfully Updated " + countSuccess + " User Accounts.");
 	}
 
 	
 	
-	protected static void operateFunds(int operation, double amount) {
-		return;
+	protected static void operateFunds(double fundsAmount) throws SQLException {
+		String command = "UPDATE bank_accounts SET account_fund = " + String.format("%.2f", fundsAmount) + " WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'";
+		if (AccountsDAO.updateDB(command)>0) System.out.println("  Balance Changed !");
+		else System.out.println("  Operating Balance Fail !\n  Please Try Again Later.");
 	}
+
+
+	
+	protected static void operateFunds(int accountID, double fundsAmount) throws SQLException {
+		String command = "UPDATE bank_accounts SET account_fund = account_fund - " + String.format("%.2f", fundsAmount) + " WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'";
+		if (AccountsDAO.updateDB(command)>0) {		
+			command = "UPDATE bank_accounts SET account_fund = account_fund + " + String.format("%.2f", fundsAmount) + " WHERE account_id = '" + accountID + "'";
+			if (AccountsDAO.updateDB(command)>0) System.out.println("  Funds Transferring Success !");
+			else {
+				command = "UPDATE bank_accounts SET account_fund = account_fund + " + String.format("%.2f", fundsAmount) + " WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'";
+				System.out.println("  Funds Transferring Failure ! \n  Reverting Changes... ");
+				if (AccountsDAO.updateDB(command)>0) System.out.println("  Changes Reverted !");
+				else System.out.println("  Changes Reverting Failure ! \n  Please Conntect Bank Administrator.");
+			}
+		} else {
+			System.out.println("  Funds Transferring Failure ! \n" + "  No Changes was made.");
+		}
+	}
+
+	
 	
 	protected static double getFunds() throws SQLException{
-		int funds;
+		double funds;
 		ResultSet selectResult = AccountsDAO.selectDB("SELECT account_fund FROM bank_accounts WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'");
 		if (selectResult.next()) {
-			funds = selectResult.getInt(1);
-			return (double)funds / 100;
+			funds = selectResult.getDouble(1);
+			return funds;
 		} else {
 			System.out.println("  Bank Account Has Not Been Created !");
 			return -1;
