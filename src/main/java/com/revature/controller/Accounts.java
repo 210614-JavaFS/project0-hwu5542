@@ -232,7 +232,7 @@ public class Accounts extends AccountsDAO {
 
 	
 	
-	protected static double getFunds() throws SQLException{
+	protected static double getFunds() throws SQLException {
 		double funds;
 		ResultSet selectResult = AccountsDAO.selectDB("SELECT account_fund FROM bank_accounts WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'");
 		if (selectResult.next()) {
@@ -244,18 +244,38 @@ public class Accounts extends AccountsDAO {
 		}
 	}
 	
-	protected void editAccounts() {
+	
+	
+	protected static void editAccounts() {
+		
 		return;
 	}
 	
-	protected void viewAccounts() {
-		return;
-	}
+	protected static ArrayList<String> viewAccounts(String viewColumns) throws SQLException {
+		ArrayList<String> accountInfo = new ArrayList<String>();
+		String command = "SELECT * " + viewColumns;
+		ResultSet resultSet = AccountsDAO.selectDB(command);
+		ResultSetMetaData rsmd = resultSet.getMetaData();
+		boolean isLoginAccount = rsmd.getColumnCount() > 4;
 
-	protected void registerPermission() {
-		return;
+		if (resultSet.next()) {
+			if (isLoginAccount) {
+				//start here tomorrow
+			} else {
+				accountInfo.add("  Account ID|       Balance|    User One|    User Two");
+			}
+
+			do {
+				if (isLoginAccount) {
+					
+				} else {
+					accountInfo.add( String.format("%12d|", resultSet.getInt(1)) + String.format("\u0024%13.2f|", resultSet.getDouble(2))
+							      + String.format("%12s|", resultSet.getString(3)) + String.format("%12s", resultSet.getString(4)));
+				}
+			} while (resultSet.next());	
+		} else {
+			accountInfo.add("  No Result Was Found !");
+		}
+		return accountInfo;
 	}
-	
-	
-//later plans	
 }

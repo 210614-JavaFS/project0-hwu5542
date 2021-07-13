@@ -2,15 +2,15 @@ package com.revature;
 
 import java.sql.SQLException;
 
-import com.revature.controller.Login;
+import com.revature.controller.MainMenu;
 class Driver {
 	public static void main(String[] args) {
 		try {
 	//		for (int i=1; i<10; i++) {
-		//		Login.userLogin("src//test//resources//text_" + i + ".txt");
+		//		MainMenu.userLogin("src//test//resources//text_" + i + ".txt");
 		//	}
-//			Login.userLogin("src//test//resources//text_0.txt");
-			Login.userLogin(null);
+//			MainMenu.userLogin("src//test//resources//text_0.txt");
+			MainMenu.userLogin(null);
 
 		} catch (SQLException e) {
 			e.printStackTrace();

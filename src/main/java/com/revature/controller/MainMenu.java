@@ -12,7 +12,7 @@ import com.revature.service.Customers;
 import com.revature.service.Employees;
 
 
-public class Login extends Accounts {
+public class MainMenu extends Accounts {
 
 	public static void userLogin(String file) throws SQLException {
 		String username = "";
@@ -92,13 +92,17 @@ public class Login extends Accounts {
 						
 						switch (userSelection) {
 							case 1:
-							
+								accountsInfo = Accounts.viewAccounts(Employees.viewAccounts(userInput));
+								
+								for (String singleAccountInfo: accountsInfo) {
+									System.out.println(singleAccountInfo);
+								}
 								break;
 							case 2:
 								break;
 							case 3:
-								accountsInfo = Accounts.getNewApplication();							
 								approveRegisterFlag = new boolean [accountsInfo.size()];
+								accountsInfo = Accounts.getNewApplication();							
 								
 								System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
 												 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
@@ -124,8 +128,13 @@ public class Login extends Accounts {
 					
 						switch (userSelection) {
 							case 1:
-							
+								accountsInfo = Accounts.viewAccounts(Admins.viewAccounts(userInput));
+								
+								for (String singleAccountInfo: accountsInfo) {
+									System.out.println(singleAccountInfo);
+								}
 								break;
+								
 							case 2:
 								break;
 							case 3:
@@ -144,6 +153,8 @@ public class Login extends Accounts {
 								}
 							
 								Accounts.approveBankAccount(approveRegisterFlag);
+								break;
+							case 4:
 								break;
 						}
 					}
