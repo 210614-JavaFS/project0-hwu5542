@@ -1,9 +1,10 @@
-package com.revature.service;
+package com.revature.model;
 
 import java.sql.*;
 import java.util.Scanner;
 
 import com.revature.controller.Accounts;
+import com.revature.service.OperateFunds;
 
 public class Admins extends OperateFunds {
 	

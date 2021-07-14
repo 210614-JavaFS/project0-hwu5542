@@ -7,10 +7,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.revature.service.Admins;
-import com.revature.service.Customers;
-import com.revature.service.Employees;
+import com.revature.model.Admins;
+import com.revature.model.Customers;
+import com.revature.model.Employees;
 import com.revature.service.OperateAccounts;
+import com.revature.service.OperateFunds;
 
 
 public class MainMenu extends Accounts {
@@ -49,7 +50,7 @@ public class MainMenu extends Accounts {
 					
 					while (userSelection > 0) {
 						userSelection = Customers.customerInterface();
-						Customers.setBalance(Accounts.getFunds());
+						OperateFunds.setBalance(Accounts.getFunds());
 						
 						switch (userSelection) {
 							case 1:
@@ -60,13 +61,13 @@ public class MainMenu extends Accounts {
 								System.out.println("Account Balance : "+ "\u0024" + String.format("%.2f", accountBalance));
 								break;
 							case 3:
-								Accounts.operateFunds(Customers.depositFunds());
+								Accounts.operateFunds(OperateFunds.depositFunds());
 								break;
 							case 4:
-								Accounts.operateFunds(Customers.withdrawFunds());
+								Accounts.operateFunds(OperateFunds.withdrawFunds());
 								break;
 							case 5:
-								Accounts.operateFunds(Customers.transferFunds(), Customers.operateFunds(true));
+								Accounts.operateFunds(OperateFunds.transferFunds(), OperateFunds.operateFunds(true));
 								break;
 							case 6:
 								changeInfo(userInput);
@@ -215,7 +216,7 @@ public class MainMenu extends Accounts {
 		if (tempID == 0)
 			tempID = Accounts.editAccounts(tempUser);
 		if (!(tempUser.equals("") || tempID == 0)) {
-			Admins.setBalance(Accounts.getFunds());
+			OperateFunds.setBalance(Accounts.getFunds());
 			int userSelection = 0;
 			System.out.println("What would you like to do? \n"
 			           + "1. Deposit Funds. \n"
@@ -224,13 +225,13 @@ public class MainMenu extends Accounts {
 	 		if (userInput.hasNext()) userSelection = Integer.parseInt(userInput.nextLine());
 			switch (userSelection) {
 				case 1:
-					Accounts.operateFunds(Admins.depositFunds());
+					Accounts.operateFunds(OperateFunds.depositFunds());
 					break;
 				case 2:
-					Accounts.operateFunds(Admins.withdrawFunds());
+					Accounts.operateFunds(OperateFunds.withdrawFunds());
 					break;
 				case 3:
-					Accounts.operateFunds(Admins.transferFunds(), Admins.operateFunds(true));
+					Accounts.operateFunds(OperateFunds.transferFunds(), OperateFunds.operateFunds(true));
 					break;
 			}
 			Admins.setBalance(0);		

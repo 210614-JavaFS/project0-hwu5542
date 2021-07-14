@@ -14,6 +14,7 @@ class Driver {
 
 		
 		try {
+
 			for (int i=1; i<7; i++) { //up to 10
 				fileInput = profileDAO.getProfile(i);
 				MainMenu.userLogin(fileInput);

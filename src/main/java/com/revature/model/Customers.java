@@ -1,6 +1,8 @@
-package com.revature.service;
+package com.revature.model;
 
 import java.util.Scanner;
+
+import com.revature.service.OperateFunds;
 
 import java.sql.*;
 
@@ -78,5 +80,5 @@ public class Customers extends OperateFunds {
 		}
 
 		return 0;
-	}	
+	}
 }

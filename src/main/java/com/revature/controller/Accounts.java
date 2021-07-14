@@ -4,6 +4,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.revature.dao.AccountsDAO;
 
 public class Accounts extends AccountsDAO {
@@ -11,6 +14,7 @@ public class Accounts extends AccountsDAO {
 	private static class privateInfo {
 		static String username;
 		static ArrayList<Integer> applicationID = new ArrayList<Integer>();
+		static Logger log = LoggerFactory.getLogger(Accounts.class);
 	}
 	
 	
@@ -213,7 +217,10 @@ public class Accounts extends AccountsDAO {
 	
 	protected static void operateFunds(double fundsAmount) throws SQLException {
 		String command = "UPDATE bank_accounts SET account_fund = " + String.format("%.2f", fundsAmount) + " WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'";
-		if (AccountsDAO.updateDB(command)>0) System.out.println("  Balance Changed !");
+		if (AccountsDAO.updateDB(command)>0) {
+			privateInfo.log.info("User " + privateInfo.username + " made a transaction.  New balance: $" + fundsAmount);
+			System.out.println("  Balance Changed !");
+		}
 		else System.out.println("  Operating Balance Fail !\n  User Has No Bank Account.");
 	}
 
@@ -221,9 +228,14 @@ public class Accounts extends AccountsDAO {
 	
 	protected static void operateFunds(int accountID, double fundsAmount) throws SQLException {
 		String command = "UPDATE bank_accounts SET account_fund = account_fund - " + String.format("%.2f", fundsAmount) + " WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'";
-		if (AccountsDAO.updateDB(command)>0) {		
+		if (AccountsDAO.updateDB(command)>0) {
 			command = "UPDATE bank_accounts SET account_fund = account_fund + " + String.format("%.2f", fundsAmount) + " WHERE account_id = '" + accountID + "'";
-			if (AccountsDAO.updateDB(command)>0) System.out.println("  Funds Transferring Success !");
+			if (AccountsDAO.updateDB(command)>0) {
+				privateInfo.log.info("User " + privateInfo.username + " made a transfering transaction to account ID: " + accountID 
+						+". New balance: $" + getFunds());
+
+				System.out.println("  Funds Transferring Success !");
+			}
 			else {
 				command = "UPDATE bank_accounts SET account_fund = account_fund + " + String.format("%.2f", fundsAmount) + " WHERE account_user_one = '" + privateInfo.username + "' OR account_user_two = '" + privateInfo.username + "'";
 				System.out.println("  Funds Transferring Failure ! \n  Reverting Changes... ");

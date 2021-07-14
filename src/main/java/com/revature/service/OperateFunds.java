@@ -8,7 +8,11 @@ public class OperateFunds {
 	private static double balance;
 
 	public static void setBalance(double balance) {
-		balance = balance;
+		OperateFunds.balance = balance;
+	}
+
+	public static double getBalance() {
+		return balance;
 	}
 	
 	public static Scanner getUserInput() {
@@ -19,6 +23,8 @@ public class OperateFunds {
 		OperateFunds.userInput = userInput;
 	}
 
+	
+	
 	public static double operateFunds(boolean outFlow) {
 		double funds = 0;
 		
@@ -28,7 +34,7 @@ public class OperateFunds {
 
 			if (funds < 1) System.out.println("Our system does not support transitions less than one dollar, please try again.");
 
-			if (outFlow && funds > balance) {
+			if (outFlow && (funds > balance)) {
 				System.out.println("Insufficient Funds, please try again");
 				funds = 0;
 			}
@@ -40,14 +46,14 @@ public class OperateFunds {
 	
 	public static double depositFunds() {
 		System.out.println("How much would you like to deposit?");
-		return balance + Customers.operateFunds(false);
+		return balance + OperateFunds.operateFunds(false);
 	}
 	
 	
 	
 	public static double withdrawFunds() {
 		System.out.println("How much would you like to withdraw?");
-		return balance - Customers.operateFunds(true);
+		return balance - OperateFunds.operateFunds(true);
 	}
 	
 	
