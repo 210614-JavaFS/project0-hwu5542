@@ -1,0 +1,3 @@
+02:19 07-14-2021 [main] com.revature.controller.Accounts User admin made a transaction.  New balance: $1000.0
+02:20 07-14-2021 [main] com.revature.controller.Accounts User admin made a transaction.  New balance: $900.0
+02:21 07-14-2021 [main] com.revature.controller.Accounts User admin made a transfering transaction to account ID: 3. New balance: $800.0
