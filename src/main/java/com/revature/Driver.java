@@ -22,8 +22,12 @@ class Driver {
 
 			MainMenu.userLogin(profileDAO.getProfile(0));
 
-			for (int i=1; i<5; i++) { // For Demo, Switch between accounts
+			while (true) { // For Demo, Switch between accounts
 				MainMenu.userLogin(userInput);
+				System.out.println("End Demo? (yes/no)");
+				if (userInput.hasNext())
+					if (userInput.nextLine().toLowerCase().equals("yes"))
+						break;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

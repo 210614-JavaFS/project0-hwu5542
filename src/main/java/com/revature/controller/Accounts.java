@@ -48,7 +48,7 @@ public class Accounts extends AccountsDAO {
 			}
 		}
 
-		if (AccountsDAO.updateDB("INSERT INTO login_accounts (usernames, passwords, account_type) VALUES ('" + username + "', '" + password + "', 1)")>0)
+		if (AccountsDAO.updateDB("INSERT INTO login_accounts (usernames, passwords) VALUES ('" + username + "', '" + password + "')")>0)
 			System.out.println("  Register Succesfull !");
 		else
 			System.out.println("  Register Fail, Please Try Again Later.");
