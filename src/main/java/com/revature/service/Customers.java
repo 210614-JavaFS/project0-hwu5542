@@ -4,21 +4,7 @@ import java.util.Scanner;
 
 import java.sql.*;
 
-public class Customers {
-	
-	private static Scanner userInput;
-	private static double balance;
-	
-	
-	public static void setScanner(Scanner userInput) {
-		Customers.userInput = userInput;
-	}
-	
-	public static void setBalance(double balance) {
-		Customers.balance = balance;
-	}
-	
-	
+public class Customers extends OperateFunds {	
 
 	public static int customerInterface() {
 		int userSelection;
@@ -31,8 +17,8 @@ public class Customers {
 				           + "5. Transfer Funds. \n"
 						   + "6. Your Profile. \n"
 				           + "0. Exit.");
-		userSelection = Customers.userInput.nextInt();
-		Customers.userInput.nextLine();
+		userSelection = getUserInput().nextInt();
+		getUserInput().nextLine();
 		return userSelection;
 	}
 	
@@ -41,7 +27,7 @@ public class Customers {
 		String userResponse = "";
 		System.out.println("Would you like to change your information? (yes / no)");
 
-		if (Customers.userInput.hasNext()) userResponse = new String(Customers.userInput.nextLine().toLowerCase());		
+		if (getUserInput().hasNext()) userResponse = new String(getUserInput().nextLine().toLowerCase());		
 		
 		if (userResponse.equals("yes")) return true;
 		
@@ -53,15 +39,15 @@ public class Customers {
 	public static String[] collectUserInfo() {
 		String[] userInfo = new String[5];
 		System.out.println("What is your first name?");
-		userInfo[0] = Customers.userInput.nextLine();
+		userInfo[0] = getUserInput().nextLine();
 		System.out.println("What is your last name?");
-		userInfo[1] = Customers.userInput.nextLine();
+		userInfo[1] = getUserInput().nextLine();
 		System.out.println("What is your address?");
-		userInfo[2] = Customers.userInput.nextLine();
+		userInfo[2] = getUserInput().nextLine();
 		System.out.println("What is your phone number?");
-		userInfo[3] = Customers.userInput.nextLine();
+		userInfo[3] = getUserInput().nextLine();
 		System.out.println("What is your e-mail address?");
-		userInfo[4] = Customers.userInput.nextLine();
+		userInfo[4] = getUserInput().nextLine();
 		return userInfo;
 	}
 	
@@ -69,71 +55,28 @@ public class Customers {
 	
 	public static int applyBankAccount() {
 		String userResponse = "";
-		int selection = 0;
+		int accountID = 0;
 		
 		System.out.println("Are you applying for a join account? (yes / no)");
-		if (Customers.userInput.hasNext()) userResponse = new String(Customers.userInput.nextLine().toLowerCase());		
+		if (getUserInput().hasNext()) userResponse = new String(getUserInput().nextLine().toLowerCase());		
 		
 		if (userResponse.equals("yes")) {
 			System.out.println("Do you need to create a new account? (yes / no)");
-			if (Customers.userInput.hasNext()) userResponse = new String(Customers.userInput.nextLine().toLowerCase());
+			if (getUserInput().hasNext()) userResponse = new String(getUserInput().nextLine().toLowerCase());
 			if (userResponse.equals("yes")) {
 				return 0;
 			} else {
-				System.out.println("Please enter the account ID for the join account:");
-				if (Customers.userInput.hasNext())
-					selection = Customers.userInput.nextInt();
-					Customers.userInput.nextLine();
-					return selection;
+				while (true) {
+					System.out.println("Please enter the account ID for the join account:");
+					if (getUserInput().hasNext()) accountID = Integer.parseInt(getUserInput().nextLine());
+					if (accountID > 1)
+						return accountID;
+					else
+						System.out.println("  Invailid Account ID, Please Try Again.");
+				}
 			}
 		}
 
 		return 0;
-	}
-	
-	
-	public static double operateFunds(boolean outFlow) {
-		double funds = 0;
-		
-		while (funds < 1) {
-			System.out.println("Please enter the amount:");
-			if (Customers.userInput.hasNext()) funds = Double.parseDouble(Customers.userInput.nextLine());
-
-			if (funds < 1) System.out.println("Our system does not support transitions less than one dollar, please try again.");
-
-			if (outFlow && funds > Customers.balance) {
-				System.out.println("Insufficient Funds, please try again");
-				funds = 0;
-			}
-		}
-		return funds;
-	}
-	
-	
-	
-	public static double depositFunds() {
-		System.out.println("How much would you like to deposit?");
-		return Customers.balance + Customers.operateFunds(false);
-	}
-	
-	
-	
-	public static double withdrawFunds() {
-		System.out.println("How much would you like to withdraw?");
-		return Customers.balance - Customers.operateFunds(true);
-	}
-	
-	
-	
-	public static int transferFunds() {
-		int accountID = 0;
-		while (accountID < 3) {
-			System.out.println("Please enter the account ID you are transfering to:");
-			if (Customers.userInput.hasNext()) accountID = Integer.parseInt(Customers.userInput.nextLine()); 
-			if (accountID < 3) System.out.println("Invalid account ID, please try again.");
-		}
-		
-		System.out.println("How much would you like to transfer?");
-		return accountID;
-	}
+	}	
 }

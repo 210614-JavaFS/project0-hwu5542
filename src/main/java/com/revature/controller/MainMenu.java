@@ -10,11 +10,12 @@ import java.io.IOException;
 import com.revature.service.Admins;
 import com.revature.service.Customers;
 import com.revature.service.Employees;
+import com.revature.service.OperateAccounts;
 
 
 public class MainMenu extends Accounts {
 
-	public static void userLogin(String file) throws SQLException {
+	public static void userLogin(Scanner userInput) throws SQLException {
 		String username = "";
 		String password = "";
 		String userResponse = "";
@@ -22,16 +23,6 @@ public class MainMenu extends Accounts {
 		int userSelection = 1;
 		double accountBalance = 0;
 		ArrayList<String> accountsInfo = new ArrayList<String>();
-		boolean[] approveRegisterFlag = null;
-		Scanner userInput = null;
-		
-		if (file == null) userInput = new Scanner(System.in);
-		else
-			try {
-				userInput = new Scanner(new File(file));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
 		
 		System.out.println("Are you a new customer? (yes / no)");
 		if (userInput.hasNext()) userResponse = new String(userInput.nextLine().toLowerCase());		
@@ -50,9 +41,11 @@ public class MainMenu extends Accounts {
 		if (accountType > 0) {
 			System.out.println("User Credential Confirm \n  Login Successful ! "); //success login
 			switch (accountType) {
+			
+			//CUSTOMER MENU
 				case 1:
 					System.out.println("Welecome back, Customer");
-					Customers.setScanner(userInput);
+					Customers.setUserInput(userInput);
 					
 					while (userSelection > 0) {
 						userSelection = Customers.customerInterface();
@@ -84,6 +77,8 @@ public class MainMenu extends Accounts {
 							System.out.println("Your New Balance : "+ "\u0024" + String.format("%.2f", Accounts.getFunds()));
 					}
 					break;
+
+			//EMPLOYEE MENU
 				case 2:
 					System.out.println("Welecome back, Bank Employee");
 					
@@ -92,43 +87,33 @@ public class MainMenu extends Accounts {
 						
 						switch (userSelection) {
 							case 1:
-								accountsInfo = Accounts.viewAccounts(Employees.viewAccounts(userInput));
+								accountsInfo = Accounts.viewAccounts(OperateAccounts.searchAccounts(userInput));
 								
 								for (String singleAccountInfo: accountsInfo) {
 									System.out.println(singleAccountInfo);
 								}
-								break;
+								break; 
 							case 2:
-								break;
-							case 3:
-								approveRegisterFlag = new boolean [accountsInfo.size()];
-								accountsInfo = Accounts.getNewApplication();							
-								
-								System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
-												 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
-												 + String.format("%5s|", "ID #") + String.format("%10s|", "Main User") + String.format("%10s", "Join User"));
-								int i = 0;
-
-								for (String singleAccountInfo: accountsInfo) {
-									if (Employees.processApplications(singleAccountInfo, userInput))
-										approveRegisterFlag[i] = true;
-									i++;
-								}
-							
-							Accounts.approveBankAccount(approveRegisterFlag);
+								if (Accounts.checkNewApplication())
+									viewApplications(userInput);
+								else
+									System.out.println("No new applications.");
 							break;
 						}
 					}
 					break;
+				
+			//ADMIN MENU
 				case 3:
 					System.out.println("Welecome back, Bank Administrator");
+					Admins.setUserInput(userInput);
 
 					while (userSelection > 0) {
-						userSelection = Admins.adminInterface(userInput);
+						userSelection = Admins.adminInterface();
 					
 						switch (userSelection) {
 							case 1:
-								accountsInfo = Accounts.viewAccounts(Admins.viewAccounts(userInput));
+								accountsInfo = Accounts.viewAccounts(OperateAccounts.searchAccounts(userInput));
 								
 								for (String singleAccountInfo: accountsInfo) {
 									System.out.println(singleAccountInfo);
@@ -136,25 +121,29 @@ public class MainMenu extends Accounts {
 								break;
 								
 							case 2:
+								if (Accounts.checkNewApplication())
+									viewApplications(userInput);
+								else
+									System.out.println("No new applications.");
 								break;
-							case 3:
-								accountsInfo = Accounts.getNewApplication();							
-								approveRegisterFlag = new boolean [accountsInfo.size()];
-							
-								System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
-												 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
-						     				     + String.format("%5s|", "ID #") + String.format("%10s|", "Main User") + String.format("%10s", "Join User"));
-
-								int i = 0;
-								for (String singleAccountInfo: accountsInfo) {
-									if (Admins.processApplications(singleAccountInfo, userInput))
-										approveRegisterFlag[i] = true;
-									i++;	
+								
+							case 3:									
+								switch (Admins.editAccounts()) {
+									case 1:
+										Accounts.deleteAccount("FROM bank_accounts WHERE account_id = " + Admins.editDeletion("Account ID"));
+										break;
+									case 2:
+										Accounts.deleteAccount("FROM login_accounts WHERE usernames = '" + Admins.editDeletion("username") + "'");
+										break;
+									case 3:
+										System.out.println("Please enter the Account ID to operate balance:");
+										tempAccessAccount(userInput, Admins.getTempID(), "");
+										break;
+									case 4:
+										System.out.println("Please enter the Username to operate balance:");
+										tempAccessAccount(userInput, 0, userInput.nextLine());
+										break;
 								}
-							
-								Accounts.approveBankAccount(approveRegisterFlag);
-								break;
-							case 4:
 								break;
 						}
 					}
@@ -163,8 +152,6 @@ public class MainMenu extends Accounts {
 		}
 		else 
 			System.out.println("User Credential Invalid \n Please Start Over"); //fail login
-
-		userInput.close();
 	}
 
 	
@@ -176,6 +163,78 @@ public class MainMenu extends Accounts {
 		if (Customers.changeInfo()) {
 			userInfo = Customers.collectUserInfo();
 			Accounts.setAccountInfo(userInfo);
+		}
+	}
+	
+	public static void viewApplications(Scanner userInput) throws SQLException{
+		ArrayList<String> accountsInfo = new ArrayList<String>();
+		boolean[] approveRegisterFlag = null;
+		accountsInfo = Accounts.getNewApplication();							
+		approveRegisterFlag = new boolean [accountsInfo.size()];
+		String userResponse = "";
+	
+		System.out.println("Show Entire Batch? (yes / no)");
+		if (userInput.hasNext()) userResponse = new String(userInput.nextLine().toLowerCase());		
+		
+		System.out.println(String.format("%10s|", "Username") + String.format("%10s|", "First Name") + String.format("%10s|", "Last Name")
+						 + String.format("%50s|", "Current Address") + String.format("%12s|", "Phone Number") + String.format("%20s|", "E-mail")
+     				     + String.format("%5s|", "ID #") + String.format("%10s|", "Main User") + String.format("%10s", "Join User"));
+
+		if (userResponse.equals("yes")) {
+			for (String singleAccountInfo: accountsInfo)
+				System.out.println(singleAccountInfo);
+		}
+		
+
+		System.out.println("Process each application? (yes / no)");
+		if (userInput.hasNext()) userResponse = new String(userInput.nextLine().toLowerCase());		
+		
+		if (userResponse.equals("yes")) {
+			int i = 0;
+			for (String singleAccountInfo: accountsInfo) {
+				if (OperateAccounts.processApplications(singleAccountInfo, userInput))
+					approveRegisterFlag[i] = true;
+				i++;
+			}
+		}
+
+		System.out.println("Approve entire batch? (yes / no)");
+		if (userInput.hasNext()) userResponse = new String(userInput.nextLine().toLowerCase());		
+		
+		if (userResponse.equals("yes")) {
+			for (int i = 0; i<approveRegisterFlag.length; i++)
+				approveRegisterFlag[i] = true;
+		}
+		
+		Accounts.approveBankAccount(approveRegisterFlag);
+	}
+	
+	public static void tempAccessAccount(Scanner userInput, int tempID, String tempUser) throws SQLException {
+		if (tempUser == "")
+			tempUser = Accounts.editAccounts(tempID);
+		if (tempID == 0)
+			tempID = Accounts.editAccounts(tempUser);
+		if (!(tempUser.equals("") || tempID == 0)) {
+			Admins.setBalance(Accounts.getFunds());
+			int userSelection = 0;
+			System.out.println("What would you like to do? \n"
+			           + "1. Deposit Funds. \n"
+					   + "2. Withdraw Funds. \n"
+			           + "3. Transfer Funds.");
+	 		if (userInput.hasNext()) userSelection = Integer.parseInt(userInput.nextLine());
+			switch (userSelection) {
+				case 1:
+					Accounts.operateFunds(Admins.depositFunds());
+					break;
+				case 2:
+					Accounts.operateFunds(Admins.withdrawFunds());
+					break;
+				case 3:
+					Accounts.operateFunds(Admins.transferFunds(), Admins.operateFunds(true));
+					break;
+			}
+			Admins.setBalance(0);		
+			Accounts.dcAccounts(tempID, tempUser);
 		}
 	}
 }

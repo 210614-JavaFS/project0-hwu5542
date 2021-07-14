@@ -19,11 +19,11 @@ public class OperateAccounts {
 	
 	
 	
-	public static String viewAccounts(Scanner userInput) {
+	public static String searchAccounts(Scanner userInput) {
 		String userResponse = "";
 		int userSelection = 0;
 		
-		System.out.println("How would you like to find the account you viewing?\n"
+		System.out.println("How would you like to find the account you looking for?\n"
 						 + "1. Show All User Accounts.\n"
 						 + "2. Search User Accounts by First Name and Last Name. \n"
 						 + "3. Search User Accounts by Username. \n"
@@ -38,7 +38,7 @@ public class OperateAccounts {
 				break;
 			case 2:
 				userResponse = "FROM login_accounts WHERE first_name = '" + OperateAccounts.getKeywords(userInput) + "' ORDER BY first_name, last_name";
-				userResponse = userResponse.replaceFirst("#?", "' AND last_name = '");
+				userResponse = userResponse.replaceFirst("#0", "' AND last_name = '");
 				break;
 			case 3:
 				userResponse = "FROM login_accounts WHERE usernames = '" +  OperateAccounts.getKeywords(userInput) + "'";
@@ -65,8 +65,8 @@ public class OperateAccounts {
 		String userResponse = "";
 		System.out.println("Please enter your keyword:");
 		if (userInput.hasNext()) userResponse = userInput.nextLine();
-		if (userResponse.indexOf(" ") >= 0)
-			return userResponse.replaceFirst(" ", "#?");
+		if (userResponse.indexOf(' ') >= 0)
+			return userResponse.replaceFirst(" ", "#0");
 		return userResponse;
 	}
 }
